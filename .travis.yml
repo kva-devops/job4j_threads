@@ -8,8 +8,10 @@ jdk:
 sudo: false
 
 env:
+
   global:
-    - CODECOV_TOKEN='b038cebc-77b1-4637-b49b-6c7103a5b7b8'
+
+    - CODECOV_TOKEN="b038cebc-77b1-4637-b49b-6c7103a5b7b8"
 
 after_success:
   - bash <(curl -s https://codecov.io/bash)
