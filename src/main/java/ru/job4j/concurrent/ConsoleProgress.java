@@ -5,8 +5,6 @@ import java.util.List;
 
 public class ConsoleProgress implements Runnable {
 
-    int count = 0;
-
     public static void main(String[] args) throws InterruptedException {
         Thread progress = new Thread(new ConsoleProgress());
         progress.start();
@@ -16,29 +14,22 @@ public class ConsoleProgress implements Runnable {
 
     @Override
     public void run() {
+
+        int count = 0;
+
         while (!Thread.currentThread().isInterrupted()) {
             try {
-                System.out.print("\r loading : " + process());
+                System.out.print("\r loading : " + process(new ArrayList<>(
+                        List.of('-', '\\', '|', '/')), count));
                 Thread.sleep(350);
+                count = (count < 3) ? count + 1 : 0;
             } catch (InterruptedException e) {
                 Thread.currentThread().interrupt();
             }
         }
     }
 
-    private char process() {
-        char buff;
-        List<Character> characterList = new ArrayList<>(
-                List.of(
-                        '-', '\\', '|', '/'
-                )
-        );
-        buff = characterList.get(count);
-        if (count < 3) {
-            count++;
-        } else {
-            count = 0;
-        }
-        return buff;
+    private char process(List<Character> list, int count) {
+        return list.get(count);
     }
 }
