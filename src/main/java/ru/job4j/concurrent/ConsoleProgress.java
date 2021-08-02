@@ -17,19 +17,18 @@ public class ConsoleProgress implements Runnable {
 
         int count = 0;
 
+        ArrayList<Character> characters = new ArrayList<>(
+                List.of('-', '\\', '|', '/')
+        );
+
         while (!Thread.currentThread().isInterrupted()) {
             try {
-                System.out.print("\r loading : " + process(new ArrayList<>(
-                        List.of('-', '\\', '|', '/')), count));
+                System.out.print("\r loading : " + characters.get(count));
                 Thread.sleep(350);
                 count = (count < 3) ? count + 1 : 0;
             } catch (InterruptedException e) {
                 Thread.currentThread().interrupt();
             }
         }
-    }
-
-    private char process(List<Character> list, int count) {
-        return list.get(count);
     }
 }
