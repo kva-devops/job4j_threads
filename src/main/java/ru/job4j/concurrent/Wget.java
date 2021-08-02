@@ -16,48 +16,42 @@ public class Wget implements Runnable {
 
     @Override
     public void run() {
+        String filename = "someFile";
         try (BufferedInputStream in = new BufferedInputStream(new URL(url).openStream());
-             FileOutputStream fileOutputStream = new FileOutputStream("someFile")) {
+             FileOutputStream fileOutputStream = new FileOutputStream(filename)) {
             byte[] dataBuffer = new byte[1024];
             int bytesRead;
-            long refTime = referenceLoadTime(url);
             while ((bytesRead = in.read(dataBuffer, 0, 1024)) != -1) {
+                long before = System.currentTimeMillis();
                 fileOutputStream.write(dataBuffer, 0, bytesRead);
-                if (refTime < speed) {
+                long after = System.currentTimeMillis();
+                long referenceTime = after - before;
+                if (referenceTime < speed) {
                     try {
-                        Thread.sleep(speed - refTime);
+                        Thread.sleep(speed - referenceTime);
                     } catch (InterruptedException e) {
                         e.printStackTrace();
                     }
-
                 }
+
             }
         } catch (IOException e) {
             e.printStackTrace();
         }
     }
 
-    private long referenceLoadTime(String url) {
-        long referenceTime;
-        long before = System.currentTimeMillis();
-        try (BufferedInputStream in = new BufferedInputStream(new URL(url).openStream());
-             FileOutputStream fileOutputStream = new FileOutputStream("someFile")) {
-                byte[] dataBuffer = new byte[1024];
-                int bytesRead;
-                bytesRead = in.read(dataBuffer, 0, 1024);
-                fileOutputStream.write(dataBuffer, 0, bytesRead);
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-        long after = System.currentTimeMillis();
-        referenceTime = after - before;
-        System.out.println(referenceTime);
-        return referenceTime;
-    }
-
     public static void main(String[] args) throws InterruptedException {
+        if (args.length != 2) {
+            throw new InterruptedException("You need enter 2 arguments");
+        }
+        if (!args[0].contains("https://")) {
+            throw new InterruptedException("Enter correct link: http://someadress");
+        }
         String url = args[0];
         int speed = Integer.parseInt(args[1]);
+        if (speed < 0) {
+            throw new InterruptedException("Enter correct speed");
+        }
         Thread wget = new Thread(new Wget(url, speed));
         wget.start();
         wget.join();
