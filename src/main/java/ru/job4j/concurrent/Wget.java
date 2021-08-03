@@ -21,11 +21,15 @@ public class Wget implements Runnable {
              FileOutputStream fileOutputStream = new FileOutputStream(filename)) {
             byte[] dataBuffer = new byte[1024];
             int bytesRead;
-            while ((bytesRead = in.read(dataBuffer, 0, 1024)) != -1) {
-                long before = System.currentTimeMillis();
+            long before;
+            long after;
+            long referenceTime;
+            while ((before = System.currentTimeMillis()) > 0
+                    && (bytesRead = in.read(dataBuffer, 0, 1024)) != -1
+                    ) {
                 fileOutputStream.write(dataBuffer, 0, bytesRead);
-                long after = System.currentTimeMillis();
-                long referenceTime = after - before;
+                after = System.currentTimeMillis();
+                referenceTime = after - before;
                 if (referenceTime < speed) {
                     try {
                         Thread.sleep(speed - referenceTime);
