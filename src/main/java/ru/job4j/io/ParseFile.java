@@ -1,14 +1,11 @@
 package ru.job4j.io;
 
 import java.io.*;
+import java.util.function.Predicate;
 
-public class ParseFile {
+public class ParseFile implements GetContent {
 
     private final File file;
-
-    private final GetContent getterContentUnicode = new GetterContentUnicode();
-
-    private final GetContent getterContentWithoutUnicode = new GetterContentWithoutUnicode();
 
     private final Save saveContent = new Save();
 
@@ -21,9 +18,25 @@ public class ParseFile {
         File withoutUnicodeCharFile = new File("withoutUnicodeSaveFile");
         ParseFile parseFile = new ParseFile(new File("someFile"));
         String buffString;
-        buffString = parseFile.getterContentWithoutUnicode.content((character -> character < 0x80), parseFile.file);
+        buffString = parseFile.content((character -> character < 0x80), parseFile.file);
         parseFile.saveContent.saveContent(buffString, withoutUnicodeCharFile);
-        buffString = parseFile.getterContentUnicode.content((character -> character > 0), parseFile.file);
+        buffString = parseFile.content((data -> true), parseFile.file);
         parseFile.saveContent.saveContent(buffString, unicodeCharFile);
+    }
+
+    @Override
+    public String content(Predicate<Character> filter, File file) {
+        StringBuilder output = new StringBuilder();
+        try (BufferedInputStream bis = new BufferedInputStream(new FileInputStream(file))) {
+            int data;
+            while ((data = bis.read()) != -1) {
+                if (filter.test((char) data)) {
+                    output.append((char) data);
+                }
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return output.toString();
     }
 }
