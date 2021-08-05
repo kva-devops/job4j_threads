@@ -3,6 +3,7 @@ package ru.job4j.storage;
 import org.junit.Test;
 
 import static org.hamcrest.CoreMatchers.is;
+import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertThat;
 
 public class UserStorageTest {
@@ -31,7 +32,7 @@ public class UserStorageTest {
         Thread first = new ThreadTransfer(storage);
         first.start();
         first.join();
-        assertThat(storage.get(0).amount, is(400_000));
+        assertThat(storage.get(1).amount, is(400_000));
     }
 
     @Test
@@ -45,7 +46,7 @@ public class UserStorageTest {
         second.start();
         first.join();
         second.join();
-        assertThat(storage.get(0).amount, is(300_000));
+        assertThat(storage.get(1).amount, is(300_000));
     }
 
     private class ThreadDelete extends Thread {
@@ -73,6 +74,6 @@ public class UserStorageTest {
         Thread first = new ThreadDelete(storage);
         first.start();
         first.join();
-        assertThat(storage.get(0).amount, is(800_000));
+        assertNull(storage.get(1));
     }
 }

@@ -3,49 +3,38 @@ package ru.job4j.storage;
 import net.jcip.annotations.GuardedBy;
 import net.jcip.annotations.ThreadSafe;
 
-import java.util.ArrayList;
-import java.util.List;
+import java.util.*;
 
 @ThreadSafe
 public class UserStorage {
 
     @GuardedBy("this")
-    List<User> userList = new ArrayList<>();
+    Map<Integer, User> userMap = new HashMap<>();
 
     public synchronized boolean add(User user) {
-        return userList.add(user);
+        return Objects.equals(userMap.put(user.id, user), user);
     }
 
     public synchronized boolean update(User user) {
-        int index = userList.indexOf(user);
-        return userList.set(index, user).equals(user);
+        return Objects.equals(userMap.replace(user.id, user), user);
     }
 
     public synchronized boolean delete(User user) {
-        return userList.remove(user);
+        return userMap.remove(user.id, user);
     }
 
-    public synchronized User get(int index) {
-        return userList.get(index);
+    public synchronized User get(int id) {
+        return userMap.get(id);
     }
 
     public void transfer(int fromId, int toId, int amount) {
-        User userFrom = findById(fromId);
-        User userTo = findById(toId);
+        User userFrom = get(fromId);
+        User userTo = get(toId);
         if (userFrom != null && userTo != null && userTo.amount >= amount) {
             userFrom.amount -= amount;
             userTo.amount += amount;
         }
         update(userFrom);
         update(userTo);
-    }
-
-    private synchronized User findById(int id) {
-        for (User user : userList) {
-            if (user.id == id) {
-                return user;
-            }
-        }
-        return null;
     }
 }
