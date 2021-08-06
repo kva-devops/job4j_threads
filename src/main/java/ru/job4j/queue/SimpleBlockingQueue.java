@@ -13,30 +13,27 @@ public class SimpleBlockingQueue<T> {
     private Queue<T> queue = new LinkedList<>();
 
     public synchronized void offer(T value) {
-        if (queue.size() <= 2) {
-            queue.offer(value);
-            this.notifyAll();
-        } else {
+        while (queue.size() > 2) {
             try {
                 this.wait();
             } catch (InterruptedException e) {
                 Thread.currentThread().interrupt();
             }
         }
+        queue.offer(value);
+        this.notifyAll();
     }
 
     public synchronized T poll() {
-        T result = null;
-        if (queue.size() != 0) {
-            result = queue.poll();
-            this.notifyAll();
-        } else {
+        while (queue.size() == 0) {
             try {
                 this.wait();
             } catch (InterruptedException e) {
                 Thread.currentThread().interrupt();
             }
         }
+        T result = queue.poll();
+        this.notifyAll();
         return result;
     }
 }
