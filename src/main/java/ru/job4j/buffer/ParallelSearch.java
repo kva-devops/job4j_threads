@@ -8,7 +8,7 @@ public class ParallelSearch {
 
         SimpleBlockingQueue<Integer> queue = new SimpleBlockingQueue<>(3);
 
-        final int limit = queue.limit;
+        final int limit = queue.getLimit();
 
         final Thread consumer = new Thread(() -> {
             int count = 0;
@@ -25,7 +25,7 @@ public class ParallelSearch {
             }
         });
         Thread producer = new Thread(() -> {
-            for (int index = 0; index != queue.limit; index++) {
+            for (int index = 0; index != queue.getLimit(); index++) {
                 try {
                     Thread.sleep(500);
                     queue.offer(index);

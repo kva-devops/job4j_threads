@@ -12,26 +12,30 @@ public class SimpleBlockingQueue<T> {
     @GuardedBy("this")
     private Queue<T> queue = new LinkedList<>();
 
-    public final int limit;
+    private final int limit;
 
     public SimpleBlockingQueue(int limit) {
         this.limit = limit;
     }
 
+    public int getLimit() {
+        return limit;
+    }
+
     public synchronized void offer(T value) throws InterruptedException {
         while (queue.size() > limit) {
-            this.wait();
+            wait();
         }
         queue.offer(value);
-        this.notifyAll();
+        notifyAll();
     }
 
     public synchronized T poll() throws InterruptedException {
         while (queue.size() == 0) {
-            this.wait();
+            wait();
         }
         T result = queue.poll();
-        this.notifyAll();
+        notifyAll();
         return result;
     }
 
