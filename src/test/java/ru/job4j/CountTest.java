@@ -2,6 +2,9 @@ package ru.job4j;
 
 import org.junit.Test;
 
+import java.util.Arrays;
+import java.util.concurrent.CopyOnWriteArrayList;
+
 import static org.hamcrest.CoreMatchers.is;
 import static org.junit.Assert.assertThat;
 
@@ -33,5 +36,33 @@ public class CountTest {
         assertThat(count.get(), is(2));
     }
 
+    @Test
+    public void whenIncrementAndGet() throws InterruptedException {
+        final CopyOnWriteArrayList<Integer> buffer = new CopyOnWriteArrayList<>();
+        final CasCount countCas = new CasCount();
+        Thread first = new Thread(() -> {
+            for (int i = 0; i < 3; i++) {
+                countCas.increment();
+            }
+        });
+        first.start();
+        Thread second = new Thread(() -> buffer.add(countCas.get()));
+        second.start();
+        first.join();
+        second.join();
+        assertThat(buffer, is(Arrays.asList(3)));
+    }
 
+    @Test
+    public void whenGetOnly() throws InterruptedException {
+        final CopyOnWriteArrayList<Integer> buffer = new CopyOnWriteArrayList<>();
+        final CasCount countCas = new CasCount();
+        Thread first = new Thread(() -> buffer.add(countCas.get()));
+        first.start();
+        Thread second = new Thread(() -> buffer.add(countCas.get()));
+        second.start();
+        first.join();
+        second.join();
+        assertThat(buffer, is(Arrays.asList(0, 0)));
+    }
 }
