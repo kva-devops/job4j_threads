@@ -4,7 +4,6 @@ import org.junit.Test;
 
 import java.util.Arrays;
 import java.util.concurrent.CopyOnWriteArrayList;
-import java.util.stream.IntStream;
 
 import static org.hamcrest.CoreMatchers.is;
 import static org.junit.Assert.assertThat;
@@ -13,12 +12,22 @@ public class SimpleBlockingQueueTest {
 
     @Test
     public void addAndRetrieves() throws InterruptedException {
-        SimpleBlockingQueue<Integer> simpleBlockingQueue = new SimpleBlockingQueue<>();
+        SimpleBlockingQueue<Integer> simpleBlockingQueue = new SimpleBlockingQueue<>(3);
         Thread producer = new Thread(() -> {
-            simpleBlockingQueue.offer(1);
-            simpleBlockingQueue.offer(2);
+            try {
+                simpleBlockingQueue.offer(1);
+                simpleBlockingQueue.offer(2);
+            } catch (InterruptedException e) {
+                Thread.currentThread().interrupt();
+            }
         });
-        Thread consumer = new Thread(simpleBlockingQueue::poll);
+        Thread consumer = new Thread(() -> {
+            try {
+                simpleBlockingQueue.poll();
+            } catch (InterruptedException e) {
+                Thread.currentThread().interrupt();
+            }
+        });
         producer.start();
         consumer.start();
         producer.join();
@@ -28,15 +37,23 @@ public class SimpleBlockingQueueTest {
 
     @Test
     public void addIfNotFreePlace() throws InterruptedException {
-        SimpleBlockingQueue<Integer> simpleBlockingQueue = new SimpleBlockingQueue<>();
+        SimpleBlockingQueue<Integer> simpleBlockingQueue = new SimpleBlockingQueue<>(3);
         Thread producer = new Thread(() -> {
-            simpleBlockingQueue.offer(1);
-            simpleBlockingQueue.offer(2);
-            simpleBlockingQueue.offer(3);
+            try {
+                simpleBlockingQueue.offer(1);
+                simpleBlockingQueue.offer(2);
+                simpleBlockingQueue.offer(3);
+            } catch (InterruptedException e) {
+                Thread.currentThread().interrupt();
+            }
         });
         Thread consumer = new Thread(() -> {
-            simpleBlockingQueue.poll();
-            simpleBlockingQueue.poll();
+            try {
+                simpleBlockingQueue.poll();
+                simpleBlockingQueue.poll();
+            } catch (InterruptedException e) {
+                Thread.currentThread().interrupt();
+            }
         });
         producer.start();
         consumer.start();
@@ -48,11 +65,15 @@ public class SimpleBlockingQueueTest {
     @Test
     public void whenFetchAllThenGetIt() throws InterruptedException {
         final CopyOnWriteArrayList<Integer> buffer = new CopyOnWriteArrayList<>();
-        final SimpleBlockingQueue<Integer> queue = new SimpleBlockingQueue<>();
+        final SimpleBlockingQueue<Integer> queue = new SimpleBlockingQueue<>(3);
         Thread producer = new Thread(() -> {
-            IntStream.range(0, 3).forEach(
-                    queue::offer
-            );
+            try {
+                for (int i = 0; i < 3; i++) {
+                    queue.offer(i);
+                }
+            } catch (InterruptedException e) {
+                Thread.currentThread().interrupt();
+            }
         });
         producer.start();
         Thread consumer = new Thread(() -> {
