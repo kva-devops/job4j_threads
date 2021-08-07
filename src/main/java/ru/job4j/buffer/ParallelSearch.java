@@ -13,13 +13,13 @@ public class ParallelSearch {
         final Thread consumer = new Thread(() -> {
             int count = 0;
             while (!Thread.currentThread().isInterrupted()) {
-                if (count++ < limit) {
-                    try {
-                        System.out.println(queue.poll());
-                    } catch (InterruptedException e) {
-                        e.printStackTrace();
-                    }
-                } else {
+                try {
+                    System.out.println(queue.poll());
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                }
+                count++;
+                if (count == limit) {
                     Thread.currentThread().interrupt();
                 }
             }
