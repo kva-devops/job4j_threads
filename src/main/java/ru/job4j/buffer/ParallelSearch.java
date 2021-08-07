@@ -6,9 +6,9 @@ import ru.job4j.queue.SimpleBlockingQueue;
 public class ParallelSearch {
     public static void main(String[] args) {
 
-        SimpleBlockingQueue<Integer> queue = new SimpleBlockingQueue<>(3);
+        int limit = 3;
 
-        final int limit = queue.getLimit();
+        SimpleBlockingQueue<Integer> queue = new SimpleBlockingQueue<>(limit);
 
         final Thread consumer = new Thread(() -> {
             int count = 0;
@@ -25,7 +25,7 @@ public class ParallelSearch {
             }
         });
         Thread producer = new Thread(() -> {
-            for (int index = 0; index != queue.getLimit(); index++) {
+            for (int index = 0; index != limit; index++) {
                 try {
                     Thread.sleep(500);
                     queue.offer(index);
