@@ -4,7 +4,7 @@ import ru.job4j.queue.SimpleBlockingQueue;
 
 
 public class ParallelSearch {
-    public static void main(String[] args) {
+    public static void main(String[] args) throws InterruptedException {
 
         int limit = 3;
 
@@ -16,7 +16,7 @@ public class ParallelSearch {
                 try {
                     System.out.println(queue.poll());
                 } catch (InterruptedException e) {
-                    e.printStackTrace();
+                    Thread.currentThread().interrupt();
                 }
                 count++;
                 if (count == limit) {
@@ -36,5 +36,7 @@ public class ParallelSearch {
         });
         consumer.start();
         producer.start();
+        consumer.join();
+        consumer.interrupt();
     }
 }
