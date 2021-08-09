@@ -2,6 +2,7 @@ package ru.job4j.pool;
 
 import ru.job4j.queue.SimpleBlockingQueue;
 
+import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
 
@@ -20,18 +21,16 @@ public class ThreadPool {
     }
 
     public void work(Runnable job) {
-        if (!Thread.currentThread().isInterrupted()) {
-            try {
-                tasks.offer(job);
-            } catch (InterruptedException e) {
-                Thread.currentThread().interrupt();
-            }
+        try {
+            tasks.offer(job);
+        } catch (InterruptedException e) {
+            Thread.currentThread().interrupt();
         }
     }
 
     public void shutdown() {
-        for (int i = 0; i < Runtime.getRuntime().availableProcessors(); i++) {
-            threads.get(i).interrupt();
+        for (Thread thread : threads) {
+            thread.interrupt();
         }
     }
 
