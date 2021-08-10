@@ -3,7 +3,7 @@ package ru.job4j.pool;
 import java.util.concurrent.ForkJoinPool;
 import java.util.concurrent.RecursiveTask;
 
-public class ParallelSearch<T> extends RecursiveTask<T> {
+public class ParallelSearch<T> extends RecursiveTask<Integer> {
 
     private final T[] array;
 
@@ -20,34 +20,35 @@ public class ParallelSearch<T> extends RecursiveTask<T> {
         this.to = to;
     }
 
+
     @Override
-    protected T compute() {
+    protected Integer compute() {
         if (to - from < 10 && to > from) {
-            for (int i = from; i <= to; i++) {
-                if (array[i].equals(object)) {
-                    return array[i];
-                }
-            }
+            return findIndex(from, to);
         }
         int mid = (from + to) / 2;
         ParallelSearch<T> leftSearch = new ParallelSearch<>(array, object, from, mid);
         ParallelSearch<T> rightSearch = new ParallelSearch<>(array, object, mid + 1, to);
         leftSearch.fork();
         rightSearch.fork();
-        T right = rightSearch.join();
-        T left = leftSearch.join();
-        if (right != null) {
-            return right;
-        }
-        if (left != null) {
-            return left;
-        }
-        return null;
+        Integer right = rightSearch.join();
+        Integer left = leftSearch.join();
+        return (left > right) ? left : right;
     }
 
-    public T search() {
+    private int findIndex(int from, int to) {
+        int rsl = -1;
+        for (int i = from; i <= to; i++) {
+            if (array[i].equals(object)) {
+                rsl = i;
+            }
+        }
+        return rsl;
+    }
+
+    public static int search(Object[] array, Object object) {
         ForkJoinPool forkJoinPool = new ForkJoinPool();
-        return forkJoinPool.invoke(new ParallelSearch<>(array, object, from, to));
+        return forkJoinPool.invoke(new ParallelSearch<>(array, object, 0, array.length - 1));
     }
 
     public static void main(String[] args) {
@@ -55,12 +56,8 @@ public class ParallelSearch<T> extends RecursiveTask<T> {
         for (int i = 0; i < 100; i++) {
             array[i] = String.format("String No%s", i);
         }
-        String object = "String No20";
-        ParallelSearch<String> parallelSearch = new ParallelSearch<>(array,
-                object,
-                0,
-                array.length - 1);
-        String result = parallelSearch.search();
+        String object = "String No59";
+        int result = ParallelSearch.search(array, object);
         System.out.println(result);
     }
 }
