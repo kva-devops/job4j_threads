@@ -47,12 +47,10 @@ public class RolColSum {
                 arraySums[i] = new Sums();
                 for (int j = 0; j < matrix.length; j++) {
                     buffSumRow += matrix[i][j];
+                    buffSumCol += matrix[j][i];
                 }
                 arraySums[i].setRowSum(buffSumRow);
                 buffSumRow = 0;
-                for (int k = 0; k < matrix.length; k++) {
-                    buffSumCol += matrix[k][i];
-                }
                 arraySums[i].setColSum(buffSumCol);
                 buffSumCol = 0;
             }
