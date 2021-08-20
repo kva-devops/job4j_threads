@@ -37,23 +37,6 @@ public class CountTest {
     }
 
     @Test
-    public void whenIncrementAndGet() throws InterruptedException {
-        final CopyOnWriteArrayList<Integer> buffer = new CopyOnWriteArrayList<>();
-        final CasCount countCas = new CasCount();
-        Thread first = new Thread(() -> {
-            for (int i = 0; i < 3; i++) {
-                countCas.increment();
-            }
-        });
-        first.start();
-        Thread second = new Thread(() -> buffer.add(countCas.get()));
-        second.start();
-        first.join();
-        second.join();
-        assertThat(buffer, is(Arrays.asList(3)));
-    }
-
-    @Test
     public void whenGetOnly() throws InterruptedException {
         final CopyOnWriteArrayList<Integer> buffer = new CopyOnWriteArrayList<>();
         final CasCount countCas = new CasCount();
